@@ -87,7 +87,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             final String newEmail = request.email();
             user.setEmail(newEmail);
             user.setEmailVerified(false);
-            // TODO add implementation on verification of email
         }
         if (request.updateFirstName() != null) {
             user.setFirstName(request.updateFirstName());
@@ -124,7 +123,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserUpdateResponse updateUserAccountNonExpired(UserUpdateAccountNonExpiredRequest request) {
         User user = getUser(request.userEmail());
         if (user.isAccountNonExpired() == request.userAccountNonExpired()) {
-            // TODO add exception handler with Conflicts status code
             throw new StatusAlreadyAppliesException("User account non expired status has already been set to " + user.isAccountNonExpired());
         } else {
             user.setAccountNonExpired(request.userAccountNonExpired());
