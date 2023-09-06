@@ -1,0 +1,61 @@
+# Database Configuration
+
+# spring.datasource.driverClassName=org.h2.Driver
+# spring.datasource.url=jdbc:h2:file:./src/main/resources/db/test_db
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/authdb
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+
+  # JPA-Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop #alt -> update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # Security Configuration
+  #spring.security.user.passwordEncoder=bcrypt  # Use bcrypt for password hashing
+
+  security:
+    user:
+      password: bcrypt
+
+  config:
+    import: classpath:security.yml
+
+# Exception Handling never
+
+server:
+  error:
+    include-stacktrace: never
+#SSL
+  port: 8443
+  ssl:
+    key-alias: server
+    key-password: ${SSL_KEY_STORE_PASSWORD}
+    key-store: ${PATH-TO_KEYSTORE}
+    key-store-type: PKCS12
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+    client-auth: none
+
+
+
+# Logging Configuration
+
+logging:
+  level:
+    ua.com.lexlata.authenticationservice: DEBUG
+    #org.springframework: DEBUG
+    #org.apache.tomcat: DEBUG
+
+
+
+
+

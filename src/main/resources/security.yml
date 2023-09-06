@@ -1,0 +1,6 @@
+html-request-auth-header: "Authorization"
+jwt-validity-in-milliseconds: 1200000
+jwt-prefix: "Bearer "
+jwt-issuer: "associate2coder"
+jwt-signing-key: ${JWT_SIGNING_KEY}
+verification-token-validity-in-milliseconds: 86400000
