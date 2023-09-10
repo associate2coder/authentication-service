@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDeleteResponse deleteUser(UserDeleteRequest request) {
-        String email = request.getEmail();
+        String email = request.email();
         User user = getUser(email);
         userRepository.delete(user);
         return UserDeleteResponse.builder()
@@ -101,8 +101,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public SetRoleResponse setRole(SetRoleRequest request) {
-        Role newRole = roleService.getRole(request.getRole());
-        User user = getUser(request.getEmail());
+        Role newRole = roleService.getRole(request.role());
+        User user = getUser(request.email());
         user.setRole(newRole);
 
         Long userId = user.getId();
