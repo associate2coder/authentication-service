@@ -1,0 +1,5 @@
+mail-smtp-host: ${SMTP_HOST} #Env variable
+mail-smtp-user: ${SMTP_USER} #Env variable
+mail-smtp-password: ${SMTP_PASSWORD} #Env variable
+mail-smtp-port: 587
+host-path: "https://localhost:" + ${server.port}

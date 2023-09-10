@@ -7,6 +7,4 @@ public record UserUpdateCredentialsNonExpiredRequest
                 @Email(message = "Username (e-mail) should be a valid e-mail address")
                 String userEmail,
                 boolean userCredentialsNonExpired
-        ) {
-
-}
+        ) { }
