@@ -1,15 +1,18 @@
 package ua.com.associate2coder.authenticationservice.users.dto;
 
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor @AllArgsConstructor
-@Builder
-public class SetRoleRequest {
 
-    private String email;
-    private String role;
+public record SetRoleRequest (
+
+        @Email(message = "Username (e-mail) should be a valid e-mail address")
+        String email,
+
+        String role
+) {
+
 }

@@ -17,22 +17,25 @@ import java.util.UUID;
 public class VerificationTokenServiceimpl implements VerificationTokenService{
 
     private final VerificationTokenRepository tokenRepo;
+
     @Value(value = "${verification-token-validity-in-milliseconds}")
     private long VERIFICATION_TOKEN_VALIDITY;
+
     @Override
     public VerificationToken createVerificationToken(User user) {
 
         deleteExistingTokensIfAny(user);
+        VerificationToken token = buildToken(user, new Date(System.currentTimeMillis()));
+        return tokenRepo.save(token);
+    }
 
-        final Date date = new Date(System.currentTimeMillis());
-
-        VerificationToken token = VerificationToken.builder()
+    private  VerificationToken buildToken(User user, Date date) {
+        return VerificationToken.builder()
                 .token(UUID.randomUUID().toString())
                 .user(user)
                 .created(date)
                 .expired(calculateExpiredDate(date))
                 .build();
-        return tokenRepo.save(token);
     }
 
     @Override
@@ -52,7 +55,8 @@ public class VerificationTokenServiceimpl implements VerificationTokenService{
 
     @Transactional
     public void deleteExistingTokensIfAny(User user) {
-        tokenRepo.findAllByUserId(user.getId()).ifPresent(usr -> tokenRepo.removeAllByUserId(usr.getId()));
+        tokenRepo.findAllByUserId(user.getId())
+                .ifPresent(usr -> tokenRepo.removeAllByUserId(usr.getId()));
     }
 
     private Date calculateExpiredDate(Date creationDate) {
