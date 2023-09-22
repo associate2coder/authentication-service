@@ -9,7 +9,6 @@ import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ua.com.associate2coder.authenticationservice.entities.User;
@@ -19,25 +18,24 @@ import java.util.List;
 import java.util.Properties;
 
 @Service
-@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
     private final Properties props = new Properties();
 
-    @Value(value = "${host-path}")
-    private final String HOST; // = "https://localhost:8443";
+    @Value(value = "${host-path}:${server.port}")
+    private String HOST; // = "https://localhost:8443";
 
     @Value(value = "${mail-smtp-user}")
-    private final String smtpUsername; // = System.getenv().get("SMTP_USER");   // NEED ENV VARIABLE
+    private String smtpUsername; // = System.getenv().get("SMTP_USER");   // NEED ENV VARIABLE
 
     @Value(value = "${mail-smtp-password}")
-    private final String smtpPassword; // = System.getenv().get("SMTP_PASSWORD");   // NEED ENV VARIABLE
+    private String smtpPassword; // = System.getenv().get("SMTP_PASSWORD");   // NEED ENV VARIABLE
 
     @Value(value = "${mail-smtp-host}")
-    private final String smtpHost; // = System.getenv().get("SMTP_HOST"); // NEED ENV VARIABLE
+    private String smtpHost; // = System.getenv().get("SMTP_HOST"); // NEED ENV VARIABLE
 
     @Value(value = "${mail-smtp-port}")
-    private final String smtpPort;
+    private String smtpPort;
 
 
     @PostConstruct
@@ -69,7 +67,7 @@ public class EmailServiceImpl implements EmailService {
 
         } catch (MessagingException mex) {
             mex.printStackTrace();
-            Exception ex = null;
+            Exception ex;
             if ((ex = mex.getNextException()) != null) {
                 ex.printStackTrace();
             }
