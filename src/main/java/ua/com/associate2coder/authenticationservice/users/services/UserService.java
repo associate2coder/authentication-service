@@ -9,9 +9,9 @@ public interface UserService {
 
     User createUser(UserRegistrationRequest request);
 
-    User getUser(String email);
+    User getUserByEmail(String email);
 
-    User getUser(Long id);
+    User getUserById(Long id);
 
     UserDeleteResponse deleteUser(UserDeleteRequest request);
     UserUpdateResponse updateUser(UserUpdateRequest request);
@@ -21,7 +21,12 @@ public interface UserService {
     UserUpdateResponse updateUserCredentialsNonExpired(UserUpdateCredentialsNonExpiredRequest userUpdateEnabledStatusRequest);
     UserUpdateResponse updateUserEnabled(UserUpdateEnabledRequest userUpdateEnabledRequest);
 
-    EmailConfirmationResponse confirmEmail(String id, String token);
+    CustomMessageResponse confirmEmail(String id, String token);
 
+    CustomMessageResponse requestPasswordReset(PasswordResetRequest request);
+
+    PasswordResetResponse resetPassword(String id, String token);
+
+    CustomMessageResponse setNewPassword(SetNewPasswordRequest request);
 
 }

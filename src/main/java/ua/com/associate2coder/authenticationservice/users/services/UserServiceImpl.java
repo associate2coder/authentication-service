@@ -17,7 +17,10 @@ import ua.com.associate2coder.authenticationservice.entities.User;
 import ua.com.associate2coder.authenticationservice.entities.VerificationToken;
 import ua.com.associate2coder.authenticationservice.users.dto.*;
 import ua.com.associate2coder.authenticationservice.users.events.EmailConfirmationEvent;
+import ua.com.associate2coder.authenticationservice.users.events.PasswordResetEvent;
 import ua.com.associate2coder.authenticationservice.users.repositories.UserRepository;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -57,21 +60,32 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User getUser(String email) {
+    public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ElementNotFoundException("User not found with email: " + email));
     }
 
     @Override
-    public User getUser(Long id) {
+    public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ElementNotFoundException("User not found with id #: " + id));
     }
 
+    private User getUserById(String id) {
+        long userId;
+        try {
+            userId = Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("Invalid id number");
+        }
+        return getUserById(userId);
+    }
+
+
     @Override
     public UserDeleteResponse deleteUser(UserDeleteRequest request) {
         String email = request.email();
-        User user = getUser(email);
+        User user = getUserByEmail(email);
         userRepository.delete(user);
         return UserDeleteResponse.builder()
                 .id(user.getId())
@@ -82,7 +96,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserUpdateResponse updateUser(UserUpdateRequest request) {
-        User user = getUser(request.email());
+        User user = getUserByEmail(request.email());
         if (request.updateEmail() != null) {
             final String newEmail = request.email();
             user.setEmail(newEmail);
@@ -102,7 +116,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public SetRoleResponse setRole(SetRoleRequest request) {
         Role newRole = roleService.getRole(request.role());
-        User user = getUser(request.email());
+        User user = getUserByEmail(request.email());
         user.setRole(newRole);
 
         Long userId = user.getId();
@@ -121,7 +135,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserUpdateResponse updateUserAccountNonExpired(UserUpdateAccountNonExpiredRequest request) {
-        User user = getUser(request.userEmail());
+        User user = getUserByEmail(request.userEmail());
         if (user.isAccountNonExpired() == request.userAccountNonExpired()) {
             throw new StatusAlreadyAppliesException("User account non expired status has already been set to " + user.isAccountNonExpired());
         } else {
@@ -133,7 +147,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserUpdateResponse updateUserAccountNonLocked(UserUpdateAccountNonLockedRequest request) {
-        User user = getUser(request.userEmail());
+        User user = getUserByEmail(request.userEmail());
         if (user.isAccountNonLocked() == request.userAccountNonLocked()) {
             throw new StatusAlreadyAppliesException("User account non locked status has already been set to " + user.isAccountNonLocked());
         } else {
@@ -145,7 +159,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserUpdateResponse updateUserCredentialsNonExpired(UserUpdateCredentialsNonExpiredRequest request) {
-        User user = getUser(request.userEmail());
+        User user = getUserByEmail(request.userEmail());
         if (user.isCredentialsNonExpired() == request.userCredentialsNonExpired()) {
             throw new StatusAlreadyAppliesException("User credentials non expired status has already been set to " + user.isCredentialsNonExpired());
         } else {
@@ -157,7 +171,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserUpdateResponse updateUserEnabled(UserUpdateEnabledRequest request) {
-        User user = getUser(request.userEmail());
+        User user = getUserByEmail(request.userEmail());
         if (user.isEnabled() == request.userEnabled()) {
             throw new StatusAlreadyAppliesException("User enabled status has already been set to " + user.isEnabled());
         } else {
@@ -178,27 +192,78 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public EmailConfirmationResponse confirmEmail(String id, String tokenString) {
+    public CustomMessageResponse confirmEmail(String id, String tokenString) {
 
-        long userId;
-        try {
-            userId = Long.parseLong(id);
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("Invalid id number");
-        }
+        User user = getUserById(id);
+        List<VerificationToken> tokens = tokenService.getVerificationTokens(user);
 
-        User user = getUser(userId);
-        VerificationToken token = tokenService.getVerificationToken(user);
-        System.out.println(token.getToken() + " --> TOKEN IN DB");
-        System.out.println(tokenString + " --> TOKEN FROM REQUEST");
-        if (tokenString.equals(token.getToken())) {
-            user.setEmailVerified(true);
-        } else {
-            throw new BadRequestException("Email is not verified!");
+        for (VerificationToken token: tokens) {
+            if (tokenString.equals(token.getToken()) && !token.isExpired()) {
+                user.setEmailVerified(true);
+                userRepository.save(user);
+                tokenService.deleteVerificationToken(user, token);
+                return CustomMessageResponse.builder()
+                        .message("Email has been successfully confirmed!")
+                        .build();
+            }
         }
-        userRepository.save(user);
-        tokenService.deleteVerificationTokens(user);
-        return new EmailConfirmationResponse("Email has been successfully confirmed!");
+        log.info("Attempt to verify email failed");
+        throw new BadRequestException("Email is not verified!");
+    }
+
+    @Override
+    public CustomMessageResponse requestPasswordReset(PasswordResetRequest request) {
+        User user = getUserByEmail(request.email());
+        eventPublisher.publishEvent(new PasswordResetEvent(user));
+        return CustomMessageResponse.builder()
+                .message("Confirmation request has been sent to " + user.getEmail())
+                .build();
+    }
+
+    // Once this resetPassword worked, User should provide his/her new password (via frontend)
+
+    @Override
+    public PasswordResetResponse resetPassword(String id, String tokenString) {
+
+        User user = getUserById(id);
+        List<VerificationToken> tokens = tokenService.getVerificationTokens(user);
+
+        for (VerificationToken token: tokens) {
+            if (tokenString.equals(token.getToken()) && !token.isExpired()) {
+                return PasswordResetResponse.builder()
+                        .message("Please enter your new password!") // frontend should provide a form allowing user to submit a new password
+                        .userId(user.getId())
+                        .token(tokenString)
+                        .build();
+            }
+        }
+        log.info("Attempt to reset password failed");
+        throw new BadRequestException("Password is not reset!");
+    }
+
+    @Override
+    public CustomMessageResponse setNewPassword(SetNewPasswordRequest request) {
+        User user = getUserById(request.id());
+        List<VerificationToken> tokens = tokenService.getVerificationTokens(user);
+
+        log.debug("List of tokens is empty: " + tokens.isEmpty());
+
+        for (VerificationToken token: tokens) {
+            if (request.token().equals(token.getToken()) && !token.isExpired()) {
+                user.setPassword(passwordEncoder.encode(request.password()));
+                userRepository.save(user);
+                tokenService.deleteVerificationToken(user, token);
+                
+                return CustomMessageResponse.builder()
+                        .message("Password has been set!")
+                        .build();
+
+            } else if (request.token().equals(token.getToken()) && token.isExpired()) {
+                log.debug("Token matched but it has already been expired");
+            }
+        }
+        log.info("Attempt to set a new password failed");
+        throw new BadRequestException("A new password is not set!");
     }
 
 }

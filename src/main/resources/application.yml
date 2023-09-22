@@ -45,7 +45,7 @@ server:
 
 logging:
   level:
-    ua.com.ua.com.associate2coder.authenticationservice: DEBUG
+    ua.com.associate2coder.authenticationservice: DEBUG
     #org.springframework: DEBUG
     #org.apache.tomcat: DEBUG
 

@@ -4,17 +4,18 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ua.com.associate2coder.authenticationservice.common.exceptions.VerificationException;
 import ua.com.associate2coder.authenticationservice.users.repositories.VerificationTokenRepository;
-import ua.com.associate2coder.authenticationservice.common.exceptions.ElementNotFoundException;
 import ua.com.associate2coder.authenticationservice.entities.User;
 import ua.com.associate2coder.authenticationservice.entities.VerificationToken;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class VerificationTokenServiceimpl implements VerificationTokenService{
+public class VerificationTokenServiceImpl implements VerificationTokenService{
 
     private final VerificationTokenRepository tokenRepo;
 
@@ -24,7 +25,7 @@ public class VerificationTokenServiceimpl implements VerificationTokenService{
     @Override
     public VerificationToken createVerificationToken(User user) {
 
-        deleteExistingTokensIfAny(user);
+        deleteExpiredTokensIfAny(user);
         VerificationToken token = buildToken(user, new Date(System.currentTimeMillis()));
         return tokenRepo.save(token);
     }
@@ -39,24 +40,33 @@ public class VerificationTokenServiceimpl implements VerificationTokenService{
     }
 
     @Override
-    public VerificationToken getVerificationToken(User user) {
-        return tokenRepo.findAllByUserId(user.getId())
-                .orElseThrow(() -> new ElementNotFoundException("No verification tokens exist for the user"));
+    public List<VerificationToken> getVerificationTokens(User user) {
+        List<VerificationToken> existingTokens = tokenRepo.findAllByUserId(user.getId());
+        if (existingTokens.isEmpty()) {
+            throw new VerificationException("Verification tokes were not found");
+        }
+        return existingTokens;
     }
 
     @Transactional
     @Override
-    public void deleteVerificationTokens(User user) {
-        final long userId = user.getId();
-        if (tokenRepo.existsByUserId(userId)) {
-            tokenRepo.removeAllByUserId(userId);
+    public void deleteVerificationToken(User user, VerificationToken token) {
+        if (tokenRepo.existsById(token.getId())) {
+            tokenRepo.delete(token);
         }
     }
 
     @Transactional
-    public void deleteExistingTokensIfAny(User user) {
-        tokenRepo.findAllByUserId(user.getId())
-                .ifPresent(usr -> tokenRepo.removeAllByUserId(usr.getId()));
+    public void deleteExpiredTokensIfAny(User user) {
+        List<VerificationToken> expiredTokens = tokenRepo.findAllByUserId(user.getId()).stream()
+                .filter(VerificationToken::isExpired)
+                .toList();
+
+        if (!expiredTokens.isEmpty()) {
+            expiredTokens.forEach(
+                    usr -> tokenRepo.removeAllByUserId(usr.getId())
+            );
+        }
     }
 
     private Date calculateExpiredDate(Date creationDate) {

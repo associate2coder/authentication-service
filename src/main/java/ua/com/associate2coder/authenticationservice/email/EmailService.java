@@ -9,4 +9,6 @@ public interface EmailService {
     void sendPlainTextEmail(String from, String to, String subject, List<String> messages, boolean debug);
 
     void sendEmailConfirmationEmail(User user, String userEmail, String token);
+
+    void sendPasswordResetEmail(User user, String email, String token);
 }

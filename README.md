@@ -11,7 +11,8 @@ Module is a work-in-progress product. Not to be used in production.
 
 - User registration;
 - User authentication;
-- e-mail confirmation functionality.
+- e-mail confirmation functionality;
+- password reset functionality.
 
 ## How to start
 
@@ -23,4 +24,4 @@ Need to configure several properties to run:
 
 ## Future enhancements
 
-- password resent functionality.
+- under consideration

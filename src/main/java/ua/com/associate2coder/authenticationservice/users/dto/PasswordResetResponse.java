@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EmailConfirmationResponse {
+public class PasswordResetResponse {
 
     private String message;
+    private long userId;
+    private String token;
 }

@@ -127,4 +127,27 @@ public class EmailServiceImpl implements EmailService {
                         true
                 );
     }
+
+    @Override
+    public void sendPasswordResetEmail(User user, String userEmail, String token) {
+        final String from = "no-reply@domain.com";
+        final String subject = "Password reset";
+        final String url = String.format(HOST + "/api/v1/password/reset/%s/%s", user.getId(), token);
+        String link = String.format("<a href=\"%s\">%s</a>", url, url);
+        final String text = String.format("<p>Dear %s!</p>" +
+                        "<p>In order to reset your password, please following the link below:</p>" +
+                        "<p>%s</p>" +
+                        "<p>Thank you!<p>",
+                user.getFirstName(),
+                link);
+
+        sendPlainTextEmail
+                (
+                        from,
+                        userEmail,
+                        subject,
+                        List.of(text),
+                        true
+                );
+    }
 }

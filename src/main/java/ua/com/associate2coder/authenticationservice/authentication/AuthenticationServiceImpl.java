@@ -30,7 +30,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         request.password()
                 )
         );
-        return prepareAuthenticationResponse(userService.getUser(request.email()));
+        return prepareAuthenticationResponse(userService.getUserByEmail(request.email()));
     }
 
     private AuthenticationResponse prepareAuthenticationResponse(User user) {

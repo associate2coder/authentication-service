@@ -41,4 +41,12 @@ public class ExceptionsHandler {
                 "Exception message: " + e.getMessage();
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(VerificationException.class)
+    public ResponseEntity<String> handleVerificationException(VerificationException e, WebRequest request) {
+        String body = "Verification token expired, invalid or does not exist. \n" +
+                "Request description: "  + request.getDescription(false) + "\n" +
+                "Exception message: " + e.getMessage();
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 }

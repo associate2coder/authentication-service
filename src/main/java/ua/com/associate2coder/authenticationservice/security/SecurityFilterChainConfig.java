@@ -38,6 +38,7 @@ public class SecurityFilterChainConfig {
                 .authorizeHttpRequests((authorize) -> authorize                     // manage access
                                 .requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/api/v1/email/confirmation/**").permitAll()
+                                .requestMatchers("/api/v1/password/**").permitAll()
                                 .requestMatchers("/actuator/shutdown").permitAll()      // needs to run test
                                 .anyRequest().authenticated()
                         // other matchers
