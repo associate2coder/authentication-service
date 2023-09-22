@@ -12,7 +12,6 @@ import ua.com.associate2coder.authenticationservice.security.JwtService;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-
     private final UserService userService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;

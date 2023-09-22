@@ -1,7 +1,4 @@
 # Database Configuration
-
-# spring.datasource.driverClassName=org.h2.Driver
-# spring.datasource.url=jdbc:h2:file:./src/main/resources/db/test_db
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/authdb
@@ -21,31 +18,28 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   # Security Configuration
-  #spring.security.user.passwordEncoder=bcrypt  # Use bcrypt for password hashing
-
   security:
     user:
       password: bcrypt
 
+  # import additional configs which contain references to environmental variables which need to be set
   config:
-    import: classpath:security.yml
+    import: classpath:security.yml, mail.yml
 
-# Exception Handling never
-
+# Exception Handling
 server:
   error:
     include-stacktrace: never
-#SSL
+
+#SSL config
   port: 8443
   ssl:
     key-alias: server
-    key-password: ${SSL_KEY_STORE_PASSWORD}
-    key-store: ${PATH-TO_KEYSTORE}
+    key-password: ${SSL_KEY_STORE_PASSWORD}  #Env variable
+    key-store: ${PATH-TO_KEYSTORE} #Env variable
     key-store-type: PKCS12
-    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+    key-store-password: ${SSL_KEY_STORE_PASSWORD} #Env variable
     client-auth: none
-
-
 
 # Logging Configuration
 

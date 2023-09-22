@@ -10,6 +10,7 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ua.com.associate2coder.authenticationservice.entities.User;
 
@@ -23,17 +24,28 @@ public class EmailServiceImpl implements EmailService {
 
     private final Properties props = new Properties();
 
-    private final String HOST = "https://localhost:8443";
-    private final String smtpUsername = System.getenv().get("SMTP_USER");   // NEED ENV VARIABLE
-    private final String smtpPassword = System.getenv().get("SMTP_PASSWORD");   // NEED ENV VARIABLE
-    private final String smtpHost = System.getenv().get("SMTP_HOST"); // NEED ENV VARIABLE
+    @Value(value = "${host-path}")
+    private final String HOST; // = "https://localhost:8443";
+
+    @Value(value = "${mail-smtp-user}")
+    private final String smtpUsername; // = System.getenv().get("SMTP_USER");   // NEED ENV VARIABLE
+
+    @Value(value = "${mail-smtp-password}")
+    private final String smtpPassword; // = System.getenv().get("SMTP_PASSWORD");   // NEED ENV VARIABLE
+
+    @Value(value = "${mail-smtp-host}")
+    private final String smtpHost; // = System.getenv().get("SMTP_HOST"); // NEED ENV VARIABLE
+
+    @Value(value = "${mail-smtp-port}")
+    private final String smtpPort;
 
 
     @PostConstruct
     public void init() {
         props.put("mail.smtp.host", smtpHost);
         props.put("mail.smtp.ssl.trust", smtpHost);
-        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.port", smtpPort);
+        //props.put("mail.smtp.port", "587");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
     }
