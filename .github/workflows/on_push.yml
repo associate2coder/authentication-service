@@ -1,6 +1,6 @@
 name: GitHub Actions Script for CI pipeline testing
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [commit]
+on: [push]
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
