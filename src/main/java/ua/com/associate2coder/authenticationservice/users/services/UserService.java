@@ -12,20 +12,12 @@ public interface UserService {
     User getUserByEmail(String email);
 
     User getUserById(Long id);
+    User getUserById(String id);
 
     UserDeleteResponse deleteUser(UserDeleteRequest request);
     UserUpdateResponse updateUser(UserUpdateRequest request);
-    SetRoleResponse setRole(SetRoleRequest request);
-    UserUpdateResponse updateUserAccountNonExpired(UserUpdateAccountNonExpiredRequest userUpdateEnabledStatusRequest);
-    UserUpdateResponse updateUserAccountNonLocked(UserUpdateAccountNonLockedRequest userUpdateEnabledStatusRequest);
-    UserUpdateResponse updateUserCredentialsNonExpired(UserUpdateCredentialsNonExpiredRequest userUpdateEnabledStatusRequest);
-    UserUpdateResponse updateUserEnabled(UserUpdateEnabledRequest userUpdateEnabledRequest);
 
     CustomMessageResponse confirmEmail(String id, String token);
-
-    CustomMessageResponse requestPasswordReset(PasswordResetRequest request);
-
-    PasswordResetResponse resetPassword(String id, String token);
 
     CustomMessageResponse setNewPassword(SetNewPasswordRequest request);
 

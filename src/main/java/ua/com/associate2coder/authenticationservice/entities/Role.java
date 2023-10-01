@@ -1,18 +1,13 @@
 package ua.com.associate2coder.authenticationservice.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.*;
 
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Table(name = "roles")
+@Builder
 public class Role {
 
     @Id
@@ -21,12 +16,8 @@ public class Role {
 
     private String name;
 
-    @OneToMany
-    private List<User> users;
-
     public Role(String name) {
         this.name = name;
-        this.users = new ArrayList<>();
     }
 
     public String getAuthority() {

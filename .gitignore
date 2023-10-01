@@ -37,4 +37,3 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/java/ua/com/associate2coder/authenticationservice/common/utils/
-/src/test/

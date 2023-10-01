@@ -1,4 +1,4 @@
-package ua.com.associate2coder.authenticationservice.users.controllers;
+package ua.com.associate2coder.authenticationservice.authentication;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +15,15 @@ import ua.com.associate2coder.authenticationservice.users.services.UserService;
 public class PasswordResetController {
 
     private final UserService userService;
+    private final PasswordResetService passwordResetService;
     @PostMapping("/reset")
     public ResponseEntity<CustomMessageResponse> requestPasswordReset(@RequestBody PasswordResetRequest request) {
-        return ResponseEntity.ok(userService.requestPasswordReset(request));
+        return ResponseEntity.ok(passwordResetService.requestPasswordReset(request));
     }
 
     @GetMapping("/reset/{id}/{token}")
     public ResponseEntity<PasswordResetResponse> resetPassword(@PathVariable String id, @PathVariable String token) {
-        return ResponseEntity.ok(userService.resetPassword(id, token));
+        return ResponseEntity.ok(passwordResetService.resetPassword(id, token));
     }
 
     @PutMapping("/new")
